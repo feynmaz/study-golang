@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 )
@@ -25,24 +26,41 @@ func main() {
 }
 
 func handle(conn net.Conn) {
+	defer conn.Close()
+
+	io.WriteString(conn, "\nIN_MEMORY DATABASE\n\n"+
+		"USE: \n"+
+		"SET key value \n"+
+		"GET key \n"+
+		"DEL key \n\n"+
+		"EXAMPLE: \n"+
+		"SET fav chocolate \n"+
+		"GET fav \n\n\n")
+
+	data := make(map[string]string)
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
-		ln := strings.ToLower(scanner.Text())
-		bs := []byte(ln)
-		r := rot13(bs)
+		ln := scanner.Text()
+		fs := strings.Fields(ln)
 
-		fmt.Fprintf(conn, "%s - %s\n\n", ln, r)
-	}
-}
-
-func rot13(bs []byte) []byte {
-	var r13 = make([]byte, len(bs))
-	for i, v := range bs {
-		if v <= 109 {
-			r13[i] = v + 13
-		} else {
-			r13[i] = v - 13
+		switch fs[0] {
+		case "GET":
+			k := fs[1]
+			v := data[k]
+			fmt.Fprintf(conn, "%s\n", v)
+		case "SET":
+			if len(fs) != 3 {
+				fmt.Fprintf(conn, "EXPECTED VALUE")
+				continue
+			}
+			k := fs[1]
+			v := fs[2]
+			data[k] = v
+		case "DEL":
+			k := fs[1]
+			delete(data, k)
+		default:
+			fmt.Fprintln(conn, "INVALID COMMAND")
 		}
 	}
-	return r13
 }
