@@ -3,19 +3,34 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"strings"
+	"log"
+	"net"
 )
 
 func main() {
-	s := "If we`d go again all the way from the start \nI would try to change"
+	li, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Panic(err)
+	}
+	defer li.Close()
 
-	scanner := bufio.NewScanner(strings.NewReader(s))
+	for {
+		conn, err := li.Accept()
+		if err != nil {
+			log.Println(err)
+		}
+		go handle(conn)
+	}
+}
 
-	scanner.Split(bufio.ScanRunes)
+func handle(conn net.Conn) {
+	scanner := bufio.NewScanner(conn)
 
 	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Println(line)
+		ln := scanner.Text()
+		fmt.Println(ln)
 	}
+	defer conn.Close()
 
+	fmt.Println("Code got here")
 }
