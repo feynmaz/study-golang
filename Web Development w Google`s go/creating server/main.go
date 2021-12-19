@@ -1,30 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io"
-	"log"
-	"net"
+	"strings"
 )
 
 func main() {
-	li, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Panic(err)
+	s := "If we`d go again all the way from the start \nI would try to change"
+
+	scanner := bufio.NewScanner(strings.NewReader(s))
+
+	scanner.Split(bufio.ScanRunes)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
 	}
-	defer li.Close()
 
-	for {
-		conn, err := li.Accept()
-		if err != nil {
-			log.Println(err)
-		}
-
-		io.WriteString(conn, "\nHello from TCP server\n")
-		fmt.Fprintln(conn, "How is your day?")
-		fmt.Fprintf(conn, "%v", "Well, I hope!")
-
-		conn.Close()
-
-	}
 }
