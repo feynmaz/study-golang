@@ -2,53 +2,37 @@ package main
 
 import (
 	"log"
+	"math"
 	"os"
-	"strings"
 	"text/template"
 )
 
 var tpl *template.Template
 
-type sage struct {
-	Name  string
-	Motto string
+func init() {
+	tpl = template.Must(template.New("index.gohtml").Funcs(fm).ParseFiles("index.gohtml"))
+}
+
+func double(x int) int {
+	return x + x
+}
+
+func square(x int) float64 {
+	return math.Pow(float64(x), 2)
+}
+
+func sqrt(x float64) float64 {
+	return math.Sqrt(x)
 }
 
 var fm = template.FuncMap{
-	"uc": strings.ToUpper,
-	"ft": firstThree,
-}
-
-func init() {
-	tpl = template.Must(template.New("index.gohtml").Funcs(fm).ParseFiles("templates/index.gohtml"))
-}
-
-func firstThree(s string) string {
-	s = strings.TrimSpace(s)
-	s = s[:3]
-	return s
+	"fdbl":  double,
+	"fsq":   square,
+	"fsqrt": sqrt,
 }
 
 func main() {
-
-	buddha := sage{
-		Name:  "Buddha",
-		Motto: "The belief of no beliefs",
-	}
-
-	gandhi := sage{
-		"Gandhi",
-		"Be the change",
-	}
-
-	jesus := sage{
-		"Jesus",
-		"Love all",
-	}
-
-	sages := []sage{buddha, gandhi, jesus}
-
-	err := tpl.Execute(os.Stdout, sages)
+	err := tpl.Execute(os.Stdout, 3)
 	if err != nil {
 		log.Fatalln(err)
 	}
