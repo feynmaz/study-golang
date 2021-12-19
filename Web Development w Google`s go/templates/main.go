@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -13,19 +14,19 @@ type sage struct {
 	Motto string
 }
 
-type car struct {
-	Manufacturer string
-	Model        string
-	Doors        int
-}
-
-type items struct {
-	Wisdom    []sage
-	Transport []car
+var fm = template.FuncMap{
+	"uc": strings.ToUpper,
+	"ft": firstThree,
 }
 
 func init() {
-	tpl = template.Must(template.ParseFiles("templates/index.gohtml"))
+	tpl = template.Must(template.New("index.gohtml").Funcs(fm).ParseFiles("templates/index.gohtml"))
+}
+
+func firstThree(s string) string {
+	s = strings.TrimSpace(s)
+	s = s[:3]
+	return s
 }
 
 func main() {
@@ -45,27 +46,9 @@ func main() {
 		"Love all",
 	}
 
-	f := car{
-		"Ford",
-		"F150",
-		2,
-	}
-
-	c := car{
-		"Toyota",
-		"Corolla",
-		4,
-	}
-
 	sages := []sage{buddha, gandhi, jesus}
-	cars := []car{f, c}
 
-	data := items{
-		sages,
-		cars,
-	}
-
-	err := tpl.Execute(os.Stdout, data)
+	err := tpl.Execute(os.Stdout, sages)
 	if err != nil {
 		log.Fatalln(err)
 	}
