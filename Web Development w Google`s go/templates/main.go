@@ -12,8 +12,8 @@ func init() {
 	tpl = template.Must(template.ParseGlob("templates/*"))
 }
 
-func main()  {
-	err := tpl.ExecuteTemplate(os.Stdout, "index.gohtml",nil)
+func main() {
+	err := tpl.ExecuteTemplate(os.Stdout, "index.gohtml", 55)
 	if err != nil {
 		log.Fatalln(err)
 	}
