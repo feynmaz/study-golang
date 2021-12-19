@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 type hotdog int
@@ -14,7 +15,19 @@ func (m hotdog) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Fatalln(err)
 	}
 
-	tpl.ExecuteTemplate(w, "index.html", req.Form)
+	data := struct {
+		Method      string
+		URL         *url.URL
+		Submissions url.Values
+		Header      http.Header
+	}{
+		req.Method,
+		req.URL,
+		req.Form,
+		req.Header,
+	}
+
+	tpl.ExecuteTemplate(w, "index.html", data)
 }
 
 var tpl *template.Template
