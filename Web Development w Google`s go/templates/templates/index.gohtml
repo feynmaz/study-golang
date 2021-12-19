@@ -5,7 +5,9 @@
     <title>Title</title>
 </head>
 <body>
-    {{$gg := .}}
-    <div>Index value {{$gg}}</div>
+    <div>Index</div>
+    {{ range $index, $element := .}}
+    <div>{{$index}}: {{$element}}</div>
+    {{end}}
 </body>
 </html> 
