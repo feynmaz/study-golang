@@ -3,10 +3,12 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
 )
 
 func main() {
 	http.HandleFunc("/", dog)
+	http.HandleFunc("/dog.jpg", dogPic)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -15,7 +17,17 @@ func dog(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	io.WriteString(w, `
-	<!--not serving-->
-	<img src="https://www.collinsdictionary.com/images/thumb/dog_230497594_250.jpg?version=4.0.207">
+	<img src="/dog.jpg">
 	`)
+}
+
+func dogPic(w http.ResponseWriter, r *http.Request) {
+	f, err := os.Open("dog.jpg")
+	if err != nil {
+		http.Error(w, "file not found", 404)
+		return
+	}
+	defer f.Close()
+
+	io.Copy(w, f)
 }
