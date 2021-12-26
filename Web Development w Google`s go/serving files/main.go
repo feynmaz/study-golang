@@ -3,7 +3,6 @@ package main
 import (
 	"io"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -13,27 +12,10 @@ func main() {
 }
 
 func dog(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Content-Type", "text/html")
-
-	io.WriteString(w, `
-	<img src="/dog.jpg">
-	`)
+	io.WriteString(w, `<img src="/dog.jpg">`)
 }
 
 func dogPic(w http.ResponseWriter, r *http.Request) {
-	f, err := os.Open("dog.jpg")
-	if err != nil {
-		http.Error(w, "file not found", 404)
-		return
-	}
-	defer f.Close()
-
-	fi, err := f.Stat()
-	if err != nil {
-		http.Error(w, "file not found", 404)
-		return
-	}
-
-	http.ServeContent(w, r, fi.Name(), fi.ModTime(), f)
+	http.ServeFile(w, r, "dog.jpg")
 }
