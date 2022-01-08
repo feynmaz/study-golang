@@ -1,9 +1,22 @@
 package main
 
 import (
-	"io"
+	"log"
 	"net/http"
+	"text/template"
 )
+
+var tpl *template.Template
+
+func init() {
+	tpl = template.Must(template.ParseGlob("templates/*"))
+}
+
+type Person struct {
+	FirstName string
+	LastName string
+	Subscribed bool
+}
 
 func main() {
 	http.HandleFunc("/", index)
@@ -12,15 +25,16 @@ func main() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	v := r.FormValue("q")
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	io.WriteString(w,`
-	<form method="post">
-	 <input type="text" name="q">
-	 <input type="submit">
-	</form>
-	<br>
-	`+v)
+
+	f := r.FormValue("first")
+	l := r.FormValue("last")
+	s := r.FormValue("subscribe") == "on"
+
+	err := tpl.ExecuteTemplate(w, "index.html", Person{f,l,s})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		log.Fatalln(err)
+	}
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
