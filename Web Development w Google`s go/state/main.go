@@ -1,7 +1,9 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"text/template"
 )
@@ -25,16 +27,38 @@ func main() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
+	var s string
+	fmt.Println(r.Method)
+	if r.Method == http.MethodPost {
 
-	f := r.FormValue("first")
-	l := r.FormValue("last")
-	s := r.FormValue("subscribe") == "on"
+		// open
+		f, h, err := r.FormFile("q")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer f.Close()
 
-	err := tpl.ExecuteTemplate(w, "index.html", Person{f,l,s})
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		log.Fatalln(err)
+		// fyi
+		fmt.Println("\nfile:", f, "\nheader:", h, "\nerr:", err)
+
+		// read
+		bs, err := ioutil.ReadAll(f)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		s = string(bs)
 	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	io.WriteString(w, `
+	<form method="POST" enctype="multipart/form-data">
+	<input type="file" name="q">
+	<input type="submit">
+	</form>
+	<br>
+	`+s)
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
