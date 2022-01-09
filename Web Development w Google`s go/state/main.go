@@ -5,6 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 	"text/template"
 )
 
@@ -49,6 +51,19 @@ func index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		s = string(bs)
+
+		// store on server 
+		dst, err := os.Create(filepath.Join("./user/", h.Filename))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
+
+		_, err = dst.Write(bs)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
