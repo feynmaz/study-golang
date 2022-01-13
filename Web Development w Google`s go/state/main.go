@@ -1,15 +1,17 @@
 package main
 
 import (
-	"io"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func main() {
 	http.HandleFunc("/favicon.ico", faviconHandler)
 	http.HandleFunc("/", index)
+	http.HandleFunc("/set", set)
+	http.HandleFunc("/read", read)
+	http.HandleFunc("/expire", expire)
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -18,34 +20,35 @@ func main() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, `<h1><a href="/set">set</a></h1>`)
+}
 
-	//http.SetCookie(w, &http.Cookie{
-	//	Name:  "my-cookie",
-	//	Value: "0",
-	//})
+func set(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:  "session",
+		Value: "some value",
+	})
+	fmt.Fprintln(w, `<h1><a href="/read">read</a></h1>`)
+}
 
-	cookie, err := r.Cookie("my-cookie")
-
-	if err == http.ErrNoCookie {
-		cookie = &http.Cookie{
-			Name:  "my-cookie",
-			Value: "0",
-		}
-	}
-
-	count, err := strconv.Atoi(cookie.Value)
+func read(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("session")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	count++
-	cookie.Value = strconv.Itoa(count)
 
-	http.SetCookie(w, cookie)
+	fmt.Fprintf(w, `<h1>Your Cookie:<br>%v</h1><h1><a href="/expire">expire</a></h1>`, c)
+}
 
-	_, err = io.WriteString(w, cookie.Value)
+func expire(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("session")
 	if err != nil {
-		log.Fatalln(err)
+		http.Redirect(w, r, "/set", http.StatusSeeOther)
+		return
 	}
+	c.MaxAge = -1 // delete cookie
+	http.SetCookie(w, c)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
