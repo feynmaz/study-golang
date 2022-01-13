@@ -26,7 +26,7 @@ func main() {
 	http.HandleFunc("/favicon.ico", faviconHandler)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -37,12 +37,15 @@ func index(w http.ResponseWriter, r *http.Request) {
 func bar(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Your request method at bar: ", r.Method)
 	w.Header().Set("Location", "/")
-	w.WriteHeader(http.StatusSeeOther)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func barred(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Your request method at barred: ", r.Method)
-	tpl.ExecuteTemplate(w, "index.html", nil)
+	err := tpl.ExecuteTemplate(w, "index.html", nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
