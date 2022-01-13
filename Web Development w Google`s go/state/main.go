@@ -1,29 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"text/template"
+	"strconv"
 )
-
-var tpl *template.Template
-
-func init() {
-	tpl = template.Must(template.ParseGlob("templates/*"))
-}
-
-type Person struct {
-	FirstName  string
-	LastName   string
-	Subscribed bool
-}
 
 func main() {
 	http.HandleFunc("/favicon.ico", faviconHandler)
-
-	http.HandleFunc("/", set)
-	http.HandleFunc("/read", read)
+	http.HandleFunc("/", index)
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -31,23 +17,35 @@ func main() {
 	}
 }
 
-func set(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:  "my-cookie",
-		Value: "some-value",
-	})
-	_, err := fmt.Fprintln(w, "COOKIE WRITTEN - CHECK YOUR BROWSER")
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
+func index(w http.ResponseWriter, r *http.Request) {
 
-func read(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("my-cookie")
+	//http.SetCookie(w, &http.Cookie{
+	//	Name:  "my-cookie",
+	//	Value: "0",
+	//})
+
+	cookie, err := r.Cookie("my-cookie")
+
+	if err == http.ErrNoCookie {
+		cookie = &http.Cookie{
+			Name:  "my-cookie",
+			Value: "0",
+		}
+	}
+
+	count, err := strconv.Atoi(cookie.Value)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Fprintln(w, "YOUR COOKIE:", c)
+	count++
+	cookie.Value = strconv.Itoa(count)
+
+	http.SetCookie(w, cookie)
+
+	_, err = io.WriteString(w, cookie.Value)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
