@@ -37,7 +37,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 func bar(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Your request method at bar: ", r.Method)
 	w.Header().Set("Location", "/")
-	w.WriteHeader(http.StatusTemporaryRedirect)
+	w.WriteHeader(http.StatusMovedPermanently)
 }
 
 func barred(w http.ResponseWriter, r *http.Request) {
