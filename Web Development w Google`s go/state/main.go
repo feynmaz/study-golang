@@ -20,32 +20,34 @@ type Person struct {
 }
 
 func main() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/bar", bar)
-	http.HandleFunc("/barred", barred)
 	http.HandleFunc("/favicon.ico", faviconHandler)
+
+	http.HandleFunc("/", set)
+	http.HandleFunc("/read", read)
+
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Your request method at index: ", r.Method)
-}
-
-func bar(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Your request method at bar: ", r.Method)
-	w.Header().Set("Location", "/")
-	w.WriteHeader(http.StatusMovedPermanently)
-}
-
-func barred(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Your request method at barred: ", r.Method)
-	err := tpl.ExecuteTemplate(w, "index.html", nil)
+func set(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:  "my-cookie",
+		Value: "some-value",
+	})
+	_, err := fmt.Fprintln(w, "COOKIE WRITTEN - CHECK YOUR BROWSER")
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func read(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("my-cookie")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Fprintln(w, "YOUR COOKIE:", c)
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
