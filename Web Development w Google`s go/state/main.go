@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
+	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"text/template"
 )
 
@@ -17,63 +14,35 @@ func init() {
 }
 
 type Person struct {
-	FirstName string
-	LastName string
+	FirstName  string
+	LastName   string
 	Subscribed bool
 }
 
 func main() {
 	http.HandleFunc("/", index)
+	http.HandleFunc("/bar", bar)
+	http.HandleFunc("/barred", barred)
 	http.HandleFunc("/favicon.ico", faviconHandler)
-	http.ListenAndServe(":80", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	var s string
-	fmt.Println(r.Method)
-	if r.Method == http.MethodPost {
+	fmt.Println("Your request method at index: ", r.Method)
+}
 
-		// open
-		f, h, err := r.FormFile("q")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer f.Close()
+func bar(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Your request method at bar: ", r.Method)
+	w.Header().Set("Location", "/")
+	w.WriteHeader(http.StatusSeeOther)
+}
 
-		// fyi
-		fmt.Println("\nfile:", f, "\nheader:", h, "\nerr:", err)
-
-		// read
-		bs, err := ioutil.ReadAll(f)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		s = string(bs)
-
-		// store on server 
-		dst, err := os.Create(filepath.Join("./user/", h.Filename))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer dst.Close()
-
-		_, err = dst.Write(bs)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	io.WriteString(w, `
-	<form method="POST" enctype="multipart/form-data">
-	<input type="file" name="q">
-	<input type="submit">
-	</form>
-	<br>
-	`+s)
+func barred(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Your request method at barred: ", r.Method)
+	tpl.ExecuteTemplate(w, "index.html", nil)
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
