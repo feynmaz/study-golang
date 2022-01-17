@@ -7,11 +7,14 @@
     <title>bar</title>
 </head>
 <body>
-    <h3>Hello, </h3>
+    <h1>Welcome to the bar. What can I get you to drink?</h1>
+
     <div>
-        Username: {{ .UserName }} <br>
-        First name: {{ .FirstName }} <br>
-        Last name: {{ .LastName }} <br>
+        {{ if .FirstName }}
+            Username: {{ .UserName }} <br>
+            First name: {{ .FirstName }} <br>
+            Last name: {{ .LastName }} <br>
+        {{ end }}
     </div>
 </body>
 </html>
