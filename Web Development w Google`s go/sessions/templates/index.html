@@ -1,26 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>main</title>
+    <title>index</title>
 </head>
 <body>
-    {{ if .First}}
-    <div>
-      Username: {{ .UserName }} <br>
-      First name: {{ .FirstName }} <br>
-      Last name: {{ .LastName }} <br>
-    </div>
-    {{ else }}
-    <div>
-      <h2><a href="/signup">sign up</a></h2>
-    </div>
-    {{ end }}
 
-    <br>
-    <h2>Go to <a href="/bar">the bar</a></h2>
+{{if .FirstName}}
+USER NAME {{.UserName}}<br>
+FIRST {{.FirstName}}<br>
+LAST {{.LastName}}<br>
+{{else}}
+<h2><a href="/signup">sign up</a></h2>
+{{end}}
+
+<br>
+<h2>Go to <a href="/bar">the bar</a></h2>
 </body>
 </html>

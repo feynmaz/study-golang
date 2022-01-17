@@ -30,20 +30,21 @@ func main() {
 	http.HandleFunc("/favicon.ico", faviconHandler)
 	http.HandleFunc("/", index)
 	http.HandleFunc("/bar", bar)
-	http.HandleFunc("signup", signup)
+	http.HandleFunc("/signup", signup)
 
 	http.ListenAndServe(":8080", nil)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	u := getUser(w, r)
+	u := getUser(r)
 	tpl.ExecuteTemplate(w, "index.html", u)
 }
 
 func bar(w http.ResponseWriter, r *http.Request) {
-	u := getUser(w, r)
+	u := getUser(r)
 	if !alreadyLoggedIn(r){
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 	tpl.ExecuteTemplate(w, "bar.html", u)
 }
