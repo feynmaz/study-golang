@@ -2,18 +2,15 @@ package main
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 
-	"github.com/gorilla/schema"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
-
-var decoder = schema.NewDecoder()
 
 type user struct {
 	UserName  string
-	Password string
+	Password []byte
 	FirstName string
 	LastName  string
 }
@@ -55,21 +52,17 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var u user
+
 	if r.Method == http.MethodPost {
-		
-		// get form values
-		var u user
-		err := r.ParseForm()
-		if err != nil {
-			log.Fatalf("Cannot parse form: %v", err)
-		}
-		err = decoder.Decode(&u, r.Form)
-		if err != nil {
-			log.Fatalf("Cannot decode form: %v", err)
-		}
+
+		un := r.FormValue("UserName")
+		p := r.FormValue("Password")
+		f := r.FormValue("FirstName")
+		l := r.FormValue("LastName")
 
 		// is username taken
-		if _, ok := dbUsers[u.UserName]; ok {
+		if _, ok := dbUsers[un]; ok {
 			http.Error(w, "Username already taken", http.StatusForbidden)
 			return
 		}
@@ -81,14 +74,21 @@ func signup(w http.ResponseWriter, r *http.Request) {
 			Value: sID.String(),
 		}
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = u.UserName
+		dbSessions[c.Value] = un
 
 		// save user
-		dbUsers[u.UserName] = u
+		bs, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		u = user{un, bs, f, l}
+		dbUsers[un] = u
 
 		// redirect
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
+		
 	}
 
 	tpl.ExecuteTemplate(w, "signup.html", nil)
