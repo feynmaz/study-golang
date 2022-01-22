@@ -26,6 +26,6 @@ func alreadyLoggedIn(r *http.Request) bool {
 		return false
 	}
 	un := dbSessions[c.Value]
-	_, ok := dbSessions[un]
+	_, ok := dbUsers[un]
 	return ok
 }

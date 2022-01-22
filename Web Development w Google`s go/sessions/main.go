@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/bar", bar)
 	http.HandleFunc("/login", login)
+	http.HandleFunc("logout", logout)
 	http.HandleFunc("/signup", signup)
 
 	http.ListenAndServe(":8080", nil)
@@ -84,6 +85,28 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tpl.ExecuteTemplate(w, "login.html", u)
+}
+
+func logout(w http.ResponseWriter, r *http.Request) {
+	if !alreadyLoggedIn(r){
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	c, _ := r.Cookie("session")
+
+	// delete session
+	delete(dbSessions, c.Value)
+
+	// remove the cookie
+	c = &http.Cookie{
+		Name: "session",
+		Value: "",
+		MaxAge: -1,
+	}
+	http.SetCookie(w, c)
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
