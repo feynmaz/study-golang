@@ -13,6 +13,7 @@ type user struct {
 	Password []byte
 	FirstName string
 	LastName  string
+	Role string
 }
 
 var tpl *template.Template
@@ -22,7 +23,7 @@ var dbUsers = make(map[string]user) // user id - user
 func init() {
 	tpl = template.Must(template.ParseGlob("templates/*.html"))
 	bs, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.MinCost)
-	dbUsers["test@test.com"] = user{"test@test.com", bs, "James", "Bond"}
+	dbUsers["test@test.com"] = user{"test@test.com", bs, "James", "Bond", "007"}
 }
 
 func main() {
@@ -45,6 +46,10 @@ func bar(w http.ResponseWriter, r *http.Request) {
 	u := getUser(r)
 	if !alreadyLoggedIn(r){
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+	if u.Role != "007" {
+		http.Error(w, "You must be 007 to enter the bar", http.StatusForbidden)
 		return
 	}
 	tpl.ExecuteTemplate(w, "bar.html", u)
@@ -109,20 +114,21 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func signup(w http.ResponseWriter, r *http.Request) {
-	if alreadyLoggedIn(r) {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+func signup(w http.ResponseWriter, req *http.Request) {
+	if alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
 
 	var u user
 
-	if r.Method == http.MethodPost {
+	if req.Method == http.MethodPost {
 
-		un := r.FormValue("UserName")
-		p := r.FormValue("Password")
-		f := r.FormValue("FirstName")
-		l := r.FormValue("LastName")
+		un := req.FormValue("UserName")
+		p := req.FormValue("Password")
+		f := req.FormValue("FirstName")
+		l := req.FormValue("LastName")
+		r := req.FormValue("role")
 
 		// is username taken
 		if _, ok := dbUsers[un]; ok {
@@ -145,11 +151,11 @@ func signup(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		u = user{un, bs, f, l}
+		u = user{un, bs, f, l, r}
 		dbUsers[un] = u
 
 		// redirect
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 		
 	}
