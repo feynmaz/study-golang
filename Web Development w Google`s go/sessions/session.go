@@ -14,8 +14,8 @@ func getUser(r *http.Request) user {
 	}
 
 	// if the user exists already, get user
-	if un, ok := dbSessions[c.Value]; ok {
-		u = dbUsers[un]
+	if s, ok := dbSessions[c.Value]; ok {
+		u = dbUsers[s.un]
 	}
 	return u
 }
@@ -25,7 +25,7 @@ func alreadyLoggedIn(r *http.Request) bool {
 	if err != nil {
 		return false
 	}
-	un := dbSessions[c.Value]
-	_, ok := dbUsers[un]
+	s := dbSessions[c.Value]
+	_, ok := dbUsers[s.un]
 	return ok
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -16,9 +18,17 @@ type user struct {
 	Role string
 }
 
+type session struct{
+	un string
+	lastActivity time.Time
+}
+
 var tpl *template.Template
-var dbSessions = make(map[string]string) // session id - user id
 var dbUsers = make(map[string]user) // user id - user 
+var dbSessions = make(map[string]session) // session id - session
+var dbSessionsCleaned time.Time
+const sessionLength int = 30
+
 
 func init() {
 	tpl = template.Must(template.ParseGlob("templates/*.html"))
@@ -84,7 +94,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			Value: sID.String(),
 		}
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = un
+		dbSessions[c.Value] = session{un, time.Now()}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -110,6 +120,10 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge: -1,
 	}
 	http.SetCookie(w, c)
+
+	if time.Now().Sub(dbSessionsCleaned) > (time.Second * 30) {
+		go cleanSessions()
+	}
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -142,8 +156,9 @@ func signup(w http.ResponseWriter, req *http.Request) {
 			Name: "session",
 			Value: sID.String(),
 		}
+		c.MaxAge = sessionLength
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = un
+		dbSessions[c.Value] = session{un, time.Now()}
 
 		// save user
 		bs, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
@@ -163,6 +178,27 @@ func signup(w http.ResponseWriter, req *http.Request) {
 	tpl.ExecuteTemplate(w, "signup.html", nil)
 }
 
+func cleanSessions() {
+	fmt.Println("BEFORE CLEAN")
+	showSessions()
+	
+	for k, v := range dbSessions {
+		if time.Now().Sub(v.lastActivity) > (time.Second * 30) || v.un == "" {
+			delete(dbSessions, k)
+		}
+	}
+	dbSessionsCleaned = time.Now()
+	fmt.Println("AFTER CLEAN")
+	showSessions()
+}
+
+func showSessions() {
+	fmt.Println("*********")
+	for k, v := range dbSessions {
+		fmt.Println(k, v.un)
+	}
+	fmt.Println("")
+}
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "favicon.ico")
