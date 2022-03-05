@@ -6,29 +6,31 @@ import (
 	"sync"
 )
 
-var wg sync.WaitGroup
-
 func main() {
-	fmt.Println("OS\t\t", runtime.GOOS)
-	fmt.Println("ARCH\t\t", runtime.GOARCH)
-	fmt.Println("CPUs\t\t", runtime.NumCPU())
-	fmt.Println("Goroutines\t", runtime.NumGoroutine())
+	fmt.Println("Routines:", runtime.NumGoroutine())
+	runtime.GOMAXPROCS(4)
 
-	wg.Add(1)
-	go foo()
-	bar()
+	counter := 0
+	const gs = 100
+	var wg sync.WaitGroup
+	wg.Add(gs)
+
+	var mu sync.Mutex
+
+	for i := 0; i < gs; i++ {
+		go func() {
+			mu.Lock()
+			v := counter
+			runtime.Gosched()
+			v++
+			counter = v
+			mu.Unlock()
+			wg.Done()
+		}()
+		fmt.Println("Routines:", runtime.NumGoroutine())
+	}
+
 	wg.Wait()
-}
-
-func foo() {
-	for i := 0; i < 10; i++ {
-		fmt.Println("foo:", i)
-	}
-	wg.Done()
-}
-
-func bar() {
-	for i := 0; i < 10; i++ {
-		fmt.Println("bar:", i)
-	}
+	fmt.Println("Routines:", runtime.NumGoroutine())
+	fmt.Println("count:", counter)
 }
