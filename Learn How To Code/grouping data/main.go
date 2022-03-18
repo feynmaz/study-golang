@@ -10,10 +10,11 @@ func main() {
 		"Miss": 27,
 	}
 
-	m["Alex"] = 33
-
-	for k, v := range m {
-		fmt.Println(k, v)
+	key := "Miss"
+	if _, ok := m[key]; ok {
+		delete(m, key)
+		fmt.Printf("\"%v\" deleted", key)
 	}
+
 
 }
