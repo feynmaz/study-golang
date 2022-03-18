@@ -3,12 +3,22 @@ package main
 import "fmt"
 
 func main() {
-	jb := []string{"James", "Bond", "Chocolate", "Martini"}
-	fmt.Println(jb)
+	// maps are fast for lookups by key
 
-	mp := []string{"Miss", "Mp", "Strawberry", "Hazelnut"}
-	fmt.Println(mp)
+	m := map[string]int{
+		"James": 32,
+		"Miss M": 27,
+	}
+	fmt.Println(m)
 
-	xp := [][]string{jb, mp}
-	fmt.Println(xp)
+	fmt.Println(m["James"])
+
+	// comma ok idiom
+	if v, ok := m["random"]; ok {
+		fmt.Println(v)
+	}
+
+	if v, ok := m["Miss M"]; ok {
+		fmt.Println(v)
+	}
 }
