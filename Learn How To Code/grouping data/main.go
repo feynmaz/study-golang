@@ -6,4 +6,8 @@ func main() {
 	// x := type{values}  - composite literal
 	x := []int{4,5,7,8,42}
 	fmt.Println(x)
+
+	for i, v := range x {
+		fmt.Println(i, v)
+	}
 }
