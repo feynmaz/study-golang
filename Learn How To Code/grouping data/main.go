@@ -7,5 +7,10 @@ func main() {
 	x := []int{4,5,7,8,42}
 	fmt.Println(x)
 
-	fmt.Println(x[1:3])
+	x = append(x, 6, 9, 1, 0, 1002)
+	fmt.Println(x)
+
+	y := []int{12, 23, 34, 56, 67}
+	x = append(x, y...)
+	fmt.Println(x)
 }
