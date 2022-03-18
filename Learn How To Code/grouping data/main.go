@@ -7,18 +7,13 @@ func main() {
 
 	m := map[string]int{
 		"James": 32,
-		"Miss M": 27,
-	}
-	fmt.Println(m)
-
-	fmt.Println(m["James"])
-
-	// comma ok idiom
-	if v, ok := m["random"]; ok {
-		fmt.Println(v)
+		"Miss": 27,
 	}
 
-	if v, ok := m["Miss M"]; ok {
-		fmt.Println(v)
+	m["Alex"] = 33
+
+	for k, v := range m {
+		fmt.Println(k, v)
 	}
+
 }
