@@ -2,19 +2,20 @@ package main
 
 import "fmt"
 
+// struct is data structure which allows us to compose togeether values of different types
+type person struct {
+	first string
+	last string
+}
+
 func main() {
-	// maps are fast for lookups by key
-
-	m := map[string]int{
-		"James": 32,
-		"Miss": 27,
+	// value of type person
+	p1 := person{
+		first: "James",
+		last: "Bond",
 	}
 
-	key := "Miss"
-	if _, ok := m[key]; ok {
-		delete(m, key)
-		fmt.Printf("\"%v\" deleted", key)
-	}
-
+	fmt.Println(p1.last)
+	fmt.Println(p1)
 
 }
