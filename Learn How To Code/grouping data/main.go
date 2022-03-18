@@ -13,4 +13,7 @@ func main() {
 	y := []int{12, 23, 34, 56, 67}
 	x = append(x, y...)
 	fmt.Println(x)
+
+	x = append(x[:2], x[4:]...)
+	fmt.Println(x)
 }
