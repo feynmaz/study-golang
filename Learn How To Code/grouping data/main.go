@@ -3,10 +3,12 @@ package main
 import "fmt"
 
 func main() {
-	// https://youtu.be/10LW7NROfOQ
-	x := make([]int, 10, 100)
-	fmt.Println(x)
+	jb := []string{"James", "Bond", "Chocolate", "Martini"}
+	fmt.Println(jb)
 
-	x[5] = 5
-	fmt.Println(x)
+	mp := []string{"Miss", "Mp", "Strawberry", "Hazelnut"}
+	fmt.Println(mp)
+
+	xp := [][]string{jb, mp}
+	fmt.Println(xp)
 }
