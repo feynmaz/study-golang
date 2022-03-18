@@ -3,8 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	var x [5]int
-	fmt.Println(x)
-	x[3] = 42
+	// x := type{values}  - composite literal
+	x := []int{4,5,7,8,42}
 	fmt.Println(x)
 }
