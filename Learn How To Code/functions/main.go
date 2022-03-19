@@ -4,16 +4,12 @@ import "fmt"
 
 func main() {
 	foo()
-	bar("James")
-
+	foo(1, 2, 3)
 }
 
-// func (r receiver) identifier(perameters) (return(s)) { ... }
-
-func foo() {
-	fmt.Println("hello from foo")
+func foo(x ...int) {
+	fmt.Println(x)
+	fmt.Printf("%T\n", x)
 }
 
-func bar(s string) {
-	fmt.Println(s)
-}
+// func (r receiver) identifier(parameters) (return(s)) { ... }
