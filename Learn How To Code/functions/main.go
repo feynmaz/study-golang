@@ -13,6 +13,18 @@ type agent struct {
 	ltk bool
 }
 
+type human interface {
+	// any type that has speak method is also of type human
+	speak()
+}
+
+func bar(h human) {
+	switch h.(type) {
+		case agent:
+			fmt.Println("person", h.(agent).first)
+	}
+}
+
 func (a agent) speak() {
 	fmt.Println(a.last)
 	fmt.Println(a.first, a.last)
@@ -30,4 +42,6 @@ func main() {
 
 	fmt.Println(a)
 	a.speak()
+
+	bar(a)
 }
