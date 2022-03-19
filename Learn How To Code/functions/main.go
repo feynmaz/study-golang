@@ -3,13 +3,16 @@ package main
 import "fmt"
 
 func main() {
-	ii := []int{2, 3, 4, 5, 6, 7}
-	foo(ii...)
+	defer foo()
+	bar()
 }
 
-func foo(x ...int) {
-	fmt.Println(x)
-	fmt.Printf("%T\n", x)
+func foo() {
+	fmt.Println("foo")
+}
+
+func bar() {
+	fmt.Println("bar")
 }
 
 // func (r receiver) identifier(parameters) (return(s)) { ... }
