@@ -3,8 +3,8 @@ package main
 import "fmt"
 
 func main() {
-	foo()
-	foo(1, 2, 3)
+	ii := []int{2, 3, 4, 5, 6, 7}
+	foo(ii...)
 }
 
 func foo(x ...int) {
