@@ -3,21 +3,31 @@ package main
 import "fmt"
 
 func main() {
-	s1 := foo()
-	fmt.Println(s1)
+	ii := []int{1, 2, 3, 4, 5}
+	s := sum(ii...)
+	fmt.Println(s)
 
-	s2 := bar()
-	fmt.Printf("%T\n", s2)
-	fmt.Println(s2())
+	e := even(sum, ii...) 
+	fmt.Println(e)
+
 }
 
-func foo() string {
-	s := "Hello, world!"
-	return s
-}
-
-func bar() func() int {
-	return func() int {
-		return 451
+func sum(si ...int) int {
+	total := 0
+	for _, v := range si {
+		total += v
 	}
+	return total
+}
+
+func even (f func(ei ...int) int, vi ...int) int {
+	yi := make([]int, 0, len(vi))
+
+	for _, v := range vi {
+		if v % 2 == 0 {
+			yi = append(yi, v)
+		}
+	}
+
+	return f(yi...)
 }
