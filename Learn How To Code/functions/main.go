@@ -3,18 +3,21 @@ package main
 import "fmt"
 
 func main() {
-	a := incrementor()
-	fmt.Println(a())
-	fmt.Println(a())
-	fmt.Println(a())
-	fmt.Println(a())
-	fmt.Println(a())
+	n := 4
+
+	f := factorial(n)
+	fmt.Println(f)
+
+	f = 1
+	for ; n > 0; n-- {
+		f *= n
+	} 
+	fmt.Println(f)
 }
 
-func incrementor() func() int {
-	var x int
-	return func() int {
-		x++
-		return x
+func factorial(n int) int {
+	if n == 0 {
+		return 1
 	}
+	return n * factorial(n-1)
 }
