@@ -3,13 +3,18 @@ package main
 import "fmt"
 
 func main() {
+	a := incrementor()
+	fmt.Println(a())
+	fmt.Println(a())
+	fmt.Println(a())
+	fmt.Println(a())
+	fmt.Println(a())
+}
 
+func incrementor() func() int {
 	var x int
-	fmt.Printf("%T %v\n", x, x)
-	x++
-
-	{
-		y := 42
-		fmt.Println(y)
+	return func() int {
+		x++
+		return x
 	}
 }
