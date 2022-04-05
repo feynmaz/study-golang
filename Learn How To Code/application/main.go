@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 type person struct {
@@ -12,26 +13,15 @@ type person struct {
 }
 
 func main() {
-	p1 := person{
-		First: "John",
-		Last:  "Smith",
-		Age:   32,
-	}
+	s := `[{"First":"John","Last":"Smith","Age":32},{"First":"Alice","Last":"A","Age":27}]`
+	bs := []byte(s)
 
-	p2 := person{
-		First: "Alice",
-		Last:  "A",
-		Age:   27,
-	}
+	people := []person{}
 
-	people := []person{p1, p2}
+	err := json.Unmarshal(bs, &people)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(people)
-
-	bs, err := json.Marshal(people)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(bs))
-
 }
